@@ -125,6 +125,26 @@ public class EventsController {
 		return new ResponseEntity<EventsParticipantsDTO>(eventParticipants, HttpStatus.OK);
 	}
 	
+	@Operation(summary = "Get the count of participants for a particular event.")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Event participant count fetched successfully.",
+					content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{'id': '1', 'participantCount': '10'}"))),
+			@ApiResponse(responseCode = "404", description = "Event not found",
+					content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{'message': 'The event with this id cannot be found'}")))
+	})
+	@GetMapping("/{id}/participants/count")
+	public ResponseEntity<?> getEventParticipantsCount(@Parameter(description = "The id of the event") @PathVariable Long id) {
+		Object participants = eventService.getEventParticipantsCount(id);
+		
+		if (participants == null) {
+			HashMap<String, String> response = new HashMap<>();
+			response.put("message", "The event with this id cannot be found");
+			return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+		}
+		
+		return new ResponseEntity<>(participants, HttpStatus.OK);
+	}
+	
 	@Operation(summary = "Add a new event participant")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "201", description = "Participant added successfully",

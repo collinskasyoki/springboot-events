@@ -114,6 +114,16 @@ public class EventService {
 		return modelMapper.map(event, EventsParticipantsDTO.class);
 	}
 	
+	public Object getEventParticipantsCount(Long id) {
+		Event event = eventRepository.findById(id).orElse(null);
+		
+		if (event == null) {
+			return null;
+		}
+		
+		return event.getParticipants().size();
+	}
+	
 	public EventsParticipantsDTO addEventParticipant(Long id, ParticipantDTO participant) {
 		Event event = eventRepository.findById(id).orElse(null);
 		
