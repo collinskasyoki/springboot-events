@@ -136,13 +136,15 @@ public class EventsController {
 	public ResponseEntity<?> getEventParticipantsCount(@Parameter(description = "The id of the event") @PathVariable Long id) {
 		Object participants = eventService.getEventParticipantsCount(id);
 		
+		HashMap<String, String> response = new HashMap<>();
 		if (participants == null) {
-			HashMap<String, String> response = new HashMap<>();
 			response.put("message", "The event with this id cannot be found");
 			return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
 		}
 		
-		return new ResponseEntity<>(participants, HttpStatus.OK);
+		response.put("id", id.toString());
+		response.put("participantCount", participants.toString());
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
 	@Operation(summary = "Add a new event participant")
