@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-//import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -115,7 +114,7 @@ public class EventsController {
 	})
 	@GetMapping("/{id}/participants")
 	public ResponseEntity<?> getEventParticipants(@Parameter(description = "The id of the event") @PathVariable Long id) {
-		EventsParticipantsDTO eventParticipants = participantService.getEventParticipants(id);
+		EventsParticipantsDTO eventParticipants = eventService.getEventParticipants(id);
 		
 		if (eventParticipants == null) {
 			HashMap<String, String> response = new HashMap<>();
@@ -124,5 +123,23 @@ public class EventsController {
 		}
 		
 		return new ResponseEntity<EventsParticipantsDTO>(eventParticipants, HttpStatus.OK);
+	}
+	
+	@Operation(summary = "Add a new event participant")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "201", description = "Participant added successfully",
+					content = @Content(mediaType = "application/json", schema = @Schema(implementation = EventsParticipantsDTO.class))),
+			@ApiResponse(responseCode = "400", description = "Participant already exists",
+					content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{'message': 'Participant with this email already exists'}")))
+	})
+	@PostMapping("/{id}/participants")
+	public ResponseEntity<?> addEventParticipant(@Parameter(description = "The id of the event") @PathVariable Long id, @RequestBody @Validated @Valid ParticipantDTO participant) {
+		if (participantService.getParticipantByEmail(participant.getEmail()) != null) {
+			HashMap<String, String> response = new HashMap<>();
+			response.put("message", "Participant with this email already exists");
+			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+		}
+		EventsParticipantsDTO event = eventService.addEventParticipant(id, participant);
+		return new ResponseEntity<EventsParticipantsDTO>(event, HttpStatus.CREATED);
 	}
 }

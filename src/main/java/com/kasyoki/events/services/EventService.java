@@ -10,10 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.kasyoki.events.dtos.BaseEventDTO;
+import com.kasyoki.events.dtos.EventsParticipantsDTO;
 import com.kasyoki.events.dtos.OrganizerDTO;
+import com.kasyoki.events.dtos.ParticipantDTO;
 import com.kasyoki.events.dtos.RoleDTO;
 import com.kasyoki.events.models.Event;
 import com.kasyoki.events.models.Organizer;
+import com.kasyoki.events.models.Participant;
 import com.kasyoki.events.models.Role;
 import com.kasyoki.events.repositories.EventRepository;
 
@@ -99,5 +102,36 @@ public class EventService {
 		Event returnEvent = eventRepository.save(theEvent);
 		
 		return modelMapper.map(returnEvent, BaseEventDTO.class);
+	}
+	
+	public EventsParticipantsDTO getEventParticipants (Long id) {
+		Event event = eventRepository.findById(id).orElse(null);
+		
+		if (event == null) {
+			return null;
+		}
+		
+		return modelMapper.map(event, EventsParticipantsDTO.class);
+	}
+	
+	public EventsParticipantsDTO addEventParticipant(Long id, ParticipantDTO participant) {
+		Event event = eventRepository.findById(id).orElse(null);
+		
+		if(event == null) {
+			return null;
+		}
+		
+		Participant theParticipant =  new Participant();
+		theParticipant.setEmail(participant.getEmail());
+		theParticipant.setName(participant.getName());
+				
+		Set<Participant> existingParticipants = event.getParticipants();
+		existingParticipants.add(theParticipant);
+		
+		event.setParticipants(existingParticipants);
+		
+		eventRepository.save(event);
+		
+		return modelMapper.map(event, EventsParticipantsDTO.class);
 	}
 }
