@@ -104,6 +104,37 @@ public class EventService {
 		return modelMapper.map(returnEvent, BaseEventDTO.class);
 	}
 	
+	public BaseEventDTO updateEvent(Long id, BaseEventDTO eventUpdate) {
+		Event event = eventRepository.findById(id).orElse(null);
+		
+		if (event == null) {
+			return null;
+		}
+		
+		if (event.getName() != eventUpdate.getName())
+			event.setName(eventUpdate.getName());
+		if (event.getDescription() != eventUpdate.getDescription())
+			event.setDescription(eventUpdate.getDescription());
+		if (event.getDate() != eventUpdate.getDate())
+			event.setDate(eventUpdate.getDate());
+		if (event.getImageUrl() != eventUpdate.getImageUrl())
+			event.setImageUrl(eventUpdate.getImageUrl());
+		if (event.getStartTime() != eventUpdate.getStartTime())
+			event.setStartTime(eventUpdate.getStartTime());
+		if (event.getEndTime() != eventUpdate.getEndTime())
+			event.setEndTime(eventUpdate.getEndTime());
+		if (event.getLocation() != eventUpdate.getLocation())
+			event.setLocation(eventUpdate.getLocation());
+		if (event.getCategory() != eventUpdate.getCategory())
+			event.setCategory(eventUpdate.getCategory());
+		if (event.getStatus() != eventUpdate.getStatus())
+			event.setStatus(eventUpdate.getStatus());
+		
+		eventRepository.save(event);
+		
+		return modelMapper.map(event, BaseEventDTO.class);
+	}
+	
 	public EventsParticipantsDTO getEventParticipants (Long id) {
 		Event event = eventRepository.findById(id).orElse(null);
 		

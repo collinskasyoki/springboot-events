@@ -10,6 +10,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -57,12 +58,32 @@ public class EventsController {
 			@ApiResponse(
 					responseCode = "201",
 					description = "Event successfully added.",
-					content = {@Content(mediaType = "application/json", schema = @Schema(implementation = BaseEventDTO.class))})
+					content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseEventDTO.class)))
 	})
 	@PostMapping
 	public ResponseEntity<BaseEventDTO> addEvent(@RequestBody @Validated @Valid BaseEventDTO baseEventDTO) {
 		BaseEventDTO event = eventService.addEvent(baseEventDTO);
 		return new ResponseEntity<>(event, HttpStatus.CREATED);
+	}
+	
+	@Operation(summary = "Edit an event")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Event successfully updated.",
+						content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseEventDTO.class))),
+			@ApiResponse(responseCode = "401", description = "Event not found",
+						content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{'message': 'The event with this id cannot be found'}")))
+	})
+	@PutMapping("/{id}")
+	public ResponseEntity<?> updateOneEvent(@Parameter(description = "Integer id of the target event") @PathVariable Long id, @RequestBody @Validated @Valid BaseEventDTO eventDTO) {
+		BaseEventDTO event = eventService.updateEvent(id, eventDTO);
+		
+		if (event == null) {
+			HashMap<String, String> response = new HashMap<>();
+			response.put("message", "The event with this id cannot be found");
+			return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+		}
+		
+		return new ResponseEntity<BaseEventDTO>(event, HttpStatus.OK);
 	}
 	
 	@Operation(summary = "Get a specific event by id")
